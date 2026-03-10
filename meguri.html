@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#09090f">
+<title>Meguri — 巡り</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+
+/* ── Variables ── */
+:root { --tr: background 0.7s ease, color 0.7s ease, border-color 0.7s ease, box-shadow 0.7s ease, opacity 0.7s ease; }
+
+[data-theme="dark"] {
+  --bg:        #09090f;
+  --surface:   rgba(255,255,255,0.04);
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.13);
+  --text:      #e8e4dc;
+  --text-sub:  rgba(232,228,220,0.62);
+  --accent:    #d4b87a;
+  --accent-g:  rgba(200,169,110,0.16);
+  --accent-d:  rgba(200,169,110,0.38);
+  --glass:     rgba(10,10,20,0.72);
+  --shadow:    0 40px 100px rgba(0,0,0,0.75);
+  --grad1:     rgba(28,18,58,0.6);
+  --grad2:     rgba(48,24,8,0.4);
+  --noise:     0.042;
+  --cert-bg:   #09090f;
+  --complete-bg:     rgba(255,255,255,0.05);
+  --complete-border: rgba(255,255,255,0.3);
+  --complete-text:   #ffffff;
+  --complete-glow:   0 0 20px rgba(255,255,255,0.5);
+}
+[data-theme="light"] {
+  --bg:        #f5f2ec;
+  --surface:   rgba(0,0,0,0.03);
+  --border:    rgba(0,0,0,0.07);
+  --border2:   rgba(0,0,0,0.13);
+  --text:      #1c1915;
+  --text-sub:  rgba(28,25,21,0.4);
+  --accent:    #8a6832;
+  --accent-g:  rgba(138,104,50,0.1);
+  --accent-d:  rgba(138,104,50,0.32);
+  --glass:     rgba(245,242,236,0.84);
+  --shadow:    0 28px 72px rgba(0,0,0,0.09);
+  --grad1:     rgba(195,180,155,0.32);
+  --grad2:     rgba(175,158,118,0.2);
+  --noise:     0.022;
+  --cert-bg:   #f5f2ec;
+  --complete-bg:     rgba(255,245,248,0.6);
+  --complete-border: rgba(210,160,170,0.3);
+  --complete-text:   var(--text);
+  --complete-glow:   none;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); transition: var(--tr); }
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100dvh; position: relative;
+}
+
+/* ── Background ── */
+.bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.bg-grad {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 55% at 28% 18%, var(--grad1) 0%, transparent 65%),
+              radial-gradient(ellipse 55% 45% at 76% 82%, var(--grad2) 0%, transparent 60%);
+  transition: var(--tr);
+}
+.bg-noise {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--noise); transition: opacity 0.7s;
+}
+.bg-stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 11% 17%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 27% 6%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 43% 51%, rgba(255,255,255,0.38) 0%, transparent 100%),
+    radial-gradient(1px 1px at 59% 27%, rgba(255,255,255,0.32) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 71% 71%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 84% 13%, rgba(255,255,255,0.42) 0%, transparent 100%),
+    radial-gradient(1px 1px at 17% 84%, rgba(255,255,255,0.28) 0%, transparent 100%),
+    radial-gradient(1px 1px at 91% 47%, rgba(255,255,255,0.36) 0%, transparent 100%),
+    radial-gradient(1px 1px at 37% 77%, rgba(255,255,255,0.28) 0%, transparent 100%),
+    radial-gradient(1px 1px at 54% 91%, rgba(255,255,255,0.22) 0%, transparent 100%);
+  opacity: 0; transition: opacity 0.7s;
+}
+[data-theme="dark"] .bg-stars { opacity: 1; }
+
+/* ── Theme toggle ── */
+.theme-btn {
+  position: fixed; top: 20px; right: 20px; z-index: 200;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--border2); background: var(--glass);
+  backdrop-filter: blur(20px); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--accent);
+  transition: all 0.3s, var(--tr);
+}
+.theme-btn:hover { border-color: var(--accent-d); box-shadow: 0 0 14px var(--accent-g); transform: rotate(18deg); }
+
+/* ── Wrap & Card ── */
+.wrap { position: relative; z-index: 10; width: 100%; max-width: 420px; padding: 20px; }
+.card {
+  background: var(--glass); backdrop-filter: blur(48px); -webkit-backdrop-filter: blur(48px);
+  border: 1px solid var(--border); border-radius: 32px;
+  padding: 48px 34px 42px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  transition: var(--tr); position: relative; overflow: hidden;
+  max-height: 88dvh; overflow-y: auto;
+}
+.card::-webkit-scrollbar { display: none; }
+.card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 38% at 50% 0%, var(--accent-g) 0%, transparent 70%);
+  border-radius: inherit; pointer-events: none; transition: var(--tr);
+}
+
+/* ── Common type ── */
+.eyebrow {
+  font-size: 10px; font-weight: 300; letter-spacing: 0.28em;
+  text-transform: uppercase; color: var(--accent); opacity: 0.82;
+  margin-bottom: 14px; transition: var(--tr);
+}
+.title {
+  font-family: 'Cormorant', serif; font-size: 2.4rem; font-weight: 300;
+  font-style: italic; color: var(--text); letter-spacing: 0.02em;
+  line-height: 1.15; margin-bottom: 8px; transition: var(--tr);
+}
+.sub {
+  font-size: 13px; font-weight: 300; color: var(--text-sub);
+  letter-spacing: 0.03em; margin-bottom: 36px; line-height: 1.7; transition: var(--tr);
+}
+.divider {
+  width: 36px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent-d), transparent);
+  margin: 0 auto 30px; transition: var(--tr);
+}
+
+/* ── Field ── */
+.field { width: 100%; margin-bottom: 18px; text-align: left; position: relative; }
+.field label {
+  display: block; font-size: 10px; font-weight: 300;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent); opacity: 0.75; margin-bottom: 7px; transition: var(--tr);
+}
+.field input, .field textarea {
+  width: 100%; background: transparent; border: none;
+  border-bottom: 1px solid var(--border2);
+  padding: 9px 4px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 300;
+  outline: none; transition: border-color 0.3s, var(--tr);
+}
+.field textarea {
+  border: 1px solid var(--border2); border-radius: 12px;
+  padding: 12px; min-height: 90px; resize: none;
+  background: var(--surface); font-size: 0.95rem; line-height: 1.6;
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--text-sub); font-weight: 200; }
+.field input:focus { border-color: var(--accent-d); }
+.field textarea:focus { border-color: var(--accent-d); outline: none; }
+.fields-row { display: flex; gap: 14px; width: 100%; margin-bottom: 28px; align-items: flex-end; }
+.fields-row .field label { min-height: 2.4em; display: flex; align-items: flex-end; }
+.fields-row .field { margin-bottom: 0; }
+
+/* Suggestions */
+.suggestions {
+  position: absolute; top: 100%; left: 0; width: 100%;
+  background: rgba(18,18,28,0.97); backdrop-filter: blur(30px);
+  border: 1px solid var(--border2); border-radius: 14px;
+  margin-top: 6px; max-height: 220px; overflow-y: auto; z-index: 50;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.6);
+}
+[data-theme="light"] .suggestions { background: rgba(240,236,228,0.97); }
+.sug-item {
+  padding: 13px 18px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem; text-align: left;
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--text); transition: background 0.15s;
+}
+.sug-item:last-child { border-bottom: none; }
+.sug-item:hover { background: var(--accent-g); }
+.sug-graduated { font-size: 0.75rem; color: var(--accent); opacity: 0.82; }
+
+/* ── Buttons ── */
+.btn {
+  background: transparent; border: 1px solid var(--accent-d); color: var(--accent);
+  padding: 13px 44px; border-radius: 40px;
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 300;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.4s, var(--tr); margin-bottom: 14px; width: auto;
+}
+.btn:hover:not(:disabled) { background: var(--accent-g); box-shadow: 0 0 26px var(--accent-g); border-color: var(--accent); }
+.btn:disabled { opacity: 0.28; cursor: wait; }
+.btn-row { display: flex; gap: 10px; width: 100%; }
+.btn-row .btn { flex: 1; padding: 13px 0; margin-bottom: 0; }
+.btn-ghost {
+  background: none; border: none; color: var(--text-sub);
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 300;
+  letter-spacing: 0.14em; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+  opacity: 0.6; transition: opacity 0.2s; margin-top: 4px;
+}
+.btn-ghost:hover { opacity: 0.75; }
+
+/* ── Orbit ── */
+.orbit-wrap {
+  width: 196px; height: 196px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 36px;
+}
+.orbit-track {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid var(--border2); transition: var(--tr);
+}
+.orbit-track-inner {
+  position: absolute; inset: 20px; border-radius: 50%;
+  border: 1px dashed var(--border); transition: var(--tr);
+}
+.orbit-dot {
+  position: absolute; width: 8px; height: 8px;
+  background: var(--accent); border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent-d);
+  top: 50%; left: 50%; margin: -4px 0 0 -4px;
+  offset-path: circle(94px at 50% 50%);
+  offset-distance: 0%;
+  transition: background 0.7s, box-shadow 0.7s;
+}
+.ritual-name-display {
+  font-family: 'Cormorant', serif; font-size: 1.5rem; font-weight: 300;
+  font-style: italic; color: var(--accent); margin-bottom: 28px; transition: var(--tr);
+}
+.timer-num {
+  font-size: 3rem; font-weight: 200; letter-spacing: -2px;
+  color: var(--text); z-index: 2; transition: var(--tr);
+  display: flex; align-items: baseline; gap: 3px;
+}
+.timer-unit {
+  font-family: 'Cormorant', serif; font-size: 0.85rem; font-style: italic;
+  color: var(--text-sub); font-weight: 300; line-height: 1;
+}
+
+/* ── Stars / progress dots ── */
+.dots-row {
+  display: flex; gap: 8px; justify-content: center;
+  margin-bottom: 32px; flex-wrap: wrap; max-width: 300px;
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border2); transition: all 0.45s ease, var(--tr);
+}
+.dot.done  { background: var(--accent); box-shadow: 0 0 7px var(--accent-d); }
+.dot.maint { background: #6ab187; box-shadow: 0 0 7px rgba(106,177,135,0.48); }
+
+/* ── Progress text ── */
+.progress-text {
+  font-size: 13px; font-weight: 300; color: var(--text-sub);
+  letter-spacing: 0.04em; margin-bottom: 28px; line-height: 1.7;
+  transition: var(--tr);
+}
+
+/* ── Certificate ── */
+#certificate {
+  width: 100%; border: 1px solid var(--accent-d);
+  border-radius: 20px; padding: 30px 26px;
+  margin-bottom: 22px; text-align: left;
+  background: var(--cert-bg); transition: var(--tr);
+}
+.cert-title {
+  font-family: 'Cormorant', serif; font-size: 1.6rem; font-style: italic;
+  color: var(--accent); margin-bottom: 20px; font-weight: 300; transition: var(--tr);
+}
+.cert-item {
+  border-left: 1px solid var(--accent-d); padding-left: 13px;
+  margin-bottom: 14px; transition: var(--tr);
+}
+.cert-date {
+  font-family: 'Cormorant', serif; font-size: 0.7rem; font-style: italic;
+  color: var(--accent); opacity: 0.78; margin-bottom: 3px; transition: var(--tr);
+}
+.cert-text {
+  font-size: 0.85rem; font-weight: 300; line-height: 1.6;
+  color: var(--text); opacity: 0.92; transition: var(--tr);
+}
+
+/* ── Gallery grid ── */
+.gallery-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; width: 100%; text-align: left; margin-bottom: 28px;
+}
+.gallery-item {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 14px; border-radius: 14px; cursor: pointer;
+  transition: all 0.2s, var(--tr);
+}
+.gallery-item:hover { border-color: var(--accent-d); background: var(--accent-g); }
+.gallery-item-name {
+  font-family: 'Cormorant', serif; color: var(--accent);
+  font-size: 0.95rem; font-style: italic; margin-bottom: 4px; transition: var(--tr);
+}
+.gallery-item-sub { font-size: 0.7rem; opacity: 0.58; font-weight: 300; }
+.gallery-empty { font-size: 13px; color: var(--text-sub); font-style: italic; padding: 20px 0; }
+
+/* ── Complete ── */
+.complete-icon {
+  font-size: 2.8rem; margin-bottom: 18px; display: block; opacity: 0.88;
+  animation: breathe 4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { transform: scale(1); opacity: 0.88; }
+  50%      { transform: scale(1.06); opacity: 1; }
+}
+.complete-sub {
+  font-size: 13px; font-weight: 300; color: var(--text-sub);
+  line-height: 1.85; margin-bottom: 32px; letter-spacing: 0.03em; transition: var(--tr);
+}
+
+/* ── Lunar overlay ── */
+.lunar-overlay {
+  position: fixed; inset: 0; z-index: 5; pointer-events: none;
+  background-color: #0a0a15;
+  background-image:
+    radial-gradient(circle at 50% 10%, rgba(255,255,255,0.4) 0%, transparent 60%),
+    radial-gradient(circle at 50% 100%, #050510 0%, transparent 80%);
+  opacity: 0; transition: opacity 4s cubic-bezier(0.4,0,0.2,1);
+}
+.lunar-overlay.on { opacity: 1; }
+
+/* ── Screens ── */
+.screen { display: none; width: 100%; flex-direction: column; align-items: center; }
+.screen.on { display: flex; animation: fadeUp 0.5s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); filter: blur(3px); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    filter: blur(0); }
+}
+
+/* ── Path badge ── */
+.path-badge {
+  position: absolute; top: 22px; right: 28px;
+  font-family: 'Cormorant', serif; font-size: 0.72rem; font-style: italic;
+  color: var(--accent); opacity: 0.65; text-align: right; line-height: 1.5;
+  transition: var(--tr);
+}
+
+
+
+/* ── App title ── */
+.app-title {
+  font-family: 'Cormorant', serif; font-size: 3rem; font-weight: 300;
+  font-style: italic; color: var(--text); letter-spacing: 0.04em;
+  line-height: 1.1; margin-bottom: 6px; transition: var(--tr);
+}
+
+
+/* ── Citation ── */
+.citation {
+  font-size: 9px; font-weight: 300; color: var(--text-sub);
+  opacity: 0.52; letter-spacing: 0.06em; line-height: 1.7;
+  text-align: center; margin-bottom: 20px; width: 100%;
+  transition: var(--tr);
+}
+
+
+
+/* ── CSS Moon ── */
+.css-moon {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 2rem;
+  position: relative;
+  background: radial-gradient(circle at 38% 38%,
+    #f0e8d0 0%,
+    #d4c89a 35%,
+    #b8a870 60%,
+    #8a7a50 100%
+  );
+  box-shadow:
+    0 0 30px rgba(220,200,140,0.5),
+    0 0 70px rgba(200,180,110,0.3),
+    0 0 120px rgba(180,160,90,0.15);
+  animation: moonpulse 4s ease-in-out infinite;
+}
+[data-theme="dark"] .css-moon {
+  box-shadow:
+    0 0 30px rgba(220,200,140,0.6),
+    0 0 70px rgba(200,180,110,0.35),
+    0 0 140px rgba(180,160,90,0.2),
+    0 0 220px rgba(160,140,70,0.1);
+}
+[data-theme="light"] .css-moon {
+  background: radial-gradient(circle at 38% 38%,
+    #fff8e8 0%,
+    #e8d898 35%,
+    #c8b878 60%,
+    #a89858 100%
+  );
+  box-shadow:
+    0 0 20px rgba(200,180,100,0.4),
+    0 0 50px rgba(180,160,80,0.2),
+    0 0 90px rgba(160,140,60,0.1);
+}
+/* subtle surface texture via pseudo */
+.css-moon::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 62% 30%, rgba(255,255,255,0.18) 0%, transparent 30%),
+    radial-gradient(circle at 28% 65%, rgba(0,0,0,0.08) 0%, transparent 25%),
+    radial-gradient(circle at 70% 68%, rgba(0,0,0,0.06) 0%, transparent 20%);
+}
+/* moonlight beam below */
+.css-moon::after {
+  content: '';
+  position: absolute;
+  top: 70%; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 180px;
+  background: radial-gradient(ellipse at top,
+    rgba(220,200,140,0.18) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  border-radius: 50%;
+}
+@keyframes moonpulse {
+  0%,100% { box-shadow: 0 0 30px rgba(220,200,140,0.5), 0 0 70px rgba(200,180,110,0.3), 0 0 120px rgba(180,160,90,0.15); }
+  50%      { box-shadow: 0 0 40px rgba(220,200,140,0.65), 0 0 90px rgba(200,180,110,0.4), 0 0 160px rgba(180,160,90,0.2); }
+}
+
+
+/* ── Sakura petals ── */
+.sakura-container {
+  position: absolute; inset: 0; overflow: hidden;
+  pointer-events: none; border-radius: inherit;
+}
+.petal {
+  position: absolute; top: -20px;
+  width: 10px; height: 10px;
+  opacity: 0;
+  animation: petalfall linear infinite;
+}
+.petal::before {
+  content: '';
+  display: block; width: 100%; height: 100%;
+  background: radial-gradient(ellipse at 30% 30%,
+    rgba(255,220,230,0.95) 0%,
+    rgba(240,180,195,0.8) 50%,
+    rgba(220,150,170,0.5) 100%
+  );
+  border-radius: 50% 0 50% 0;
+  box-shadow: 0 1px 4px rgba(200,120,140,0.2);
+}
+@keyframes petalfall {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg) scale(0.8);   opacity: 0; }
+  5%   { opacity: 0.85; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateY(520px) translateX(var(--drift)) rotate(var(--spin)) scale(1.1); opacity: 0; }
+}
+
+/* ── Sakura centerpiece ── */
+.sakura-bloom {
+  width: 48px; height: 48px;
+  position: relative; margin: 0 auto 1.4rem;
+  animation: bloomin 1.2s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.sakura-bloom .petal-shape {
+  position: absolute; width: 20px; height: 20px;
+  border-radius: 50% 0 50% 0;
+  background: radial-gradient(ellipse at 30% 30%,
+    #ffe8ef 0%, #f0b8c8 55%, #d888a0 100%
+  );
+  box-shadow: 0 1px 5px rgba(200,100,130,0.2);
+  transform-origin: 24px 24px;
+}
+.sakura-bloom .petal-shape:nth-child(1) { transform: rotate(0deg)   translate(-2px,-13px); }
+.sakura-bloom .petal-shape:nth-child(2) { transform: rotate(72deg)  translate(-2px,-13px); }
+.sakura-bloom .petal-shape:nth-child(3) { transform: rotate(144deg) translate(-2px,-13px); }
+.sakura-bloom .petal-shape:nth-child(4) { transform: rotate(216deg) translate(-2px,-13px); }
+.sakura-bloom .petal-shape:nth-child(5) { transform: rotate(288deg) translate(-2px,-13px); }
+.sakura-bloom .center-dot {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle, #fff5e0 0%, #f0c850 100%);
+  box-shadow: 0 0 6px rgba(240,200,80,0.5);
+}
+@keyframes bloomin {
+  from { opacity: 0; transform: scale(0.4) rotate(-20deg); filter: blur(4px); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg);    filter: blur(0); }
+}
+
+
+/* ── Complete screen theme toggle ── */
+[data-theme="dark"]  .complete-light { display: none; }
+[data-theme="light"] .complete-dark  { display: none; }
+
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="bg-grad"></div>
+  <div class="bg-noise"></div>
+  <div class="bg-stars"></div>
+</div>
+
+<div class="lunar-overlay" id="lunarOverlay"></div>
+
+<button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☽</button>
+<div style="position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:200; display:flex; gap:16px;">
+<button onclick="showScreen('s-complete')" style="background:none; border:none; color:var(--text-sub); font-family:'DM Sans',sans-serif; font-size:10px; font-weight:300; letter-spacing:0.2em; opacity:0.18; cursor:pointer; padding:8px 16px;">preview graduation</button>
+<button onclick="previewAlbum()" style="background:none; border:none; color:var(--text-sub); font-family:'DM Sans',sans-serif; font-size:10px; font-weight:300; letter-spacing:0.2em; opacity:0.18; cursor:pointer; padding:8px 16px;">preview album</button>
+</div>
+
+<div class="wrap">
+  <div class="card" id="mainCard">
+
+    <!-- ① Select -->
+    <div class="screen on" id="s-select">
+      <div class="app-title">Meguri</div>
+      <h1 class="title" style="font-size:1.3rem; margin-top:0; margin-bottom:4px;">Choose Your Path</h1>
+      <p class="sub" style="font-size:11px; margin-bottom:24px;">名前をつけて、始めよう。</p>
+      <div class="divider"></div>
+      <div class="path-badge" id="pathBadge" style="display:none"></div>
+
+      <div class="field" id="nameField">
+        <label>Ritual Name</label>
+        <div style="display:flex; gap:8px; align-items:flex-end;">
+          <input type="text" id="nameInput" placeholder="Name your intention..." autocomplete="off" spellcheck="false" style="flex:1;">
+          <select id="presetSelect" onchange="applyPresetFromSelect(this)" style="background:transparent; border:none; border-bottom:1px solid var(--border2); color:var(--text-sub); font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:300; padding:9px 4px; outline:none; cursor:pointer; flex-shrink:0; max-width:110px; -webkit-appearance:none; appearance:none;">
+            <option value="" disabled selected style="background:var(--bg);">Presets</option>
+          </select>
+        </div>
+        <div class="suggestions" id="suggestions" style="display:none"></div>
+      </div>
+
+      <div class="fields-row">
+        <div class="field"><label>Duration (min)</label><input type="number" id="durationInput" value="25" min="1"></div>
+        <div class="field"><label>Target Sessions</label><input type="number" id="targetInput" value="66" min="1"></div>
+        <div class="field"><label>Maintain</label><input type="number" id="maintInput" value="7" min="0"></div>
+      </div>
+      <p class="citation">習慣化の科学的中央値: 66日（Lally et al., 2010）/ 運動: 91日（van Baak, 2003）</p>
+
+      <button class="btn" id="invokeBtn" onclick="startRitual()">Invoke</button>
+      <button class="btn-ghost" onclick="showScreen('s-gallery')">The Hall of Echoes</button>
+    </div>
+
+    <!-- ② Active -->
+    <div class="screen" id="s-active">
+      <div class="eyebrow">In Progress</div>
+      <div class="ritual-name-display" id="activeName"></div>
+      <div class="orbit-wrap">
+        <div class="orbit-track"></div>
+        <div class="orbit-track-inner"></div>
+        <div class="orbit-dot" id="orbitDot"></div>
+        <div class="timer-num" id="timerDisplay">0<span class="timer-unit">min</span></div>
+      </div>
+      <div class="dots-row" id="activeDots"></div>
+      <button class="btn-ghost" onclick="abortRitual()">Abandon the Path</button>
+    </div>
+
+    <!-- ③ Reflect -->
+    <div class="screen" id="s-reflect">
+      <div class="eyebrow">Reflect</div>
+      <h1 class="title" id="reflectTitle">Reflect on<br>the Silence</h1>
+      <div class="divider"></div>
+      <div class="field">
+        <label id="reflectLabel">Memories of the Moment</label>
+        <textarea id="reflectInput" placeholder="What did you feel?" spellcheck="false"></textarea>
+      </div>
+      <button class="btn" id="sealBtn" onclick="finishRitual()">Seal the Rite</button>
+    </div>
+
+    <!-- ④ Observed -->
+    <div class="screen" id="s-observed">
+      <div class="eyebrow">Rite Observed</div>
+      <h1 class="title" id="observedTitle" style="margin-bottom:24px;"></h1>
+      <div class="dots-row" id="observedDots"></div>
+      <p class="progress-text" id="observedText"></p>
+      <button class="btn" id="observedBtn" onclick="handleObservedBtn()"></button>
+      <button class="btn-ghost" onclick="showScreen('s-select')">Return</button>
+    </div>
+
+    <!-- ⑤ Album -->
+    <div class="screen" id="s-album">
+      <div class="eyebrow">Chronicle</div>
+      <div id="certificate">
+        <div class="cert-title" id="certTitle"></div>
+        <div id="certLogs"></div>
+      </div>
+      <div class="field">
+        <label>Final Words</label>
+        <textarea id="finalReflect" placeholder="Farewell..." spellcheck="false"></textarea>
+      </div>
+      <div class="btn-row" style="margin-bottom:14px;">
+        <button class="btn" onclick="saveImage()">Proof</button>
+        <button class="btn" id="graduateBtn" onclick="graduate()">Graduate</button>
+      </div>
+      <button class="btn-ghost" onclick="showScreen('s-select')">Return</button>
+    </div>
+
+    <!-- ⑥ Gallery -->
+    <div class="screen" id="s-gallery">
+      <div class="eyebrow">Hall of Echoes</div>
+      <h1 class="title" style="margin-bottom:8px;">Past Journeys</h1>
+      <p class="sub">卒業した習慣の記録</p>
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <button class="btn" onclick="showScreen('s-select')">Return</button>
+    </div>
+
+    <!-- ⑦ Complete -->
+    <div class="screen" id="s-complete" style="background: var(--complete-bg) !important; border-color: var(--complete-border) !important; overflow:hidden; position:relative; min-height: 60dvh; justify-content: center;">
+      <!-- dark: moon -->
+      <div class="complete-dark" style="text-align:center; width:100%;">
+        <div class="css-moon"></div>
+        <div style="font-family:'Cormorant',serif; font-size:1.6rem; color:var(--complete-text); font-style:italic; margin-bottom:0.8rem; text-shadow: var(--complete-glow); font-weight:300;">The Lunar Dawn</div>
+        <p style="font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--complete-text); opacity:0.6; margin-bottom:2rem; font-weight:300; line-height:1.9; letter-spacing:0.06em;">習慣は、もうあなたのものです。<br>The ritual is complete. You are free.</p>
+      </div>
+      <!-- light: sakura -->
+      <div class="complete-light" style="text-align:center; width:100%; position:relative;">
+        <div class="sakura-container" id="sakuraContainer"></div>
+        <div class="sakura-bloom">
+          <div class="petal-shape"></div>
+          <div class="petal-shape"></div>
+          <div class="petal-shape"></div>
+          <div class="petal-shape"></div>
+          <div class="petal-shape"></div>
+          <div class="center-dot"></div>
+        </div>
+        <div style="font-family:'Cormorant',serif; font-size:1.6rem; color:var(--complete-text); font-style:italic; margin-bottom:0.8rem; font-weight:300;">散りゆく先に</div>
+        <p style="font-family:'DM Sans',sans-serif; font-size:0.82rem; color:var(--complete-text); opacity:0.6; margin-bottom:2rem; font-weight:300; line-height:1.9; letter-spacing:0.06em;">習慣は、もうあなたのものです。<br>You have bloomed.</p>
+      </div>
+      <button class="btn" style="border-color:var(--complete-text); color:var(--complete-text); position:relative; z-index:2;" onclick="resetAll()">New Journey</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── DB ──────────────────────────────────────────────
+const DB_NAME = 'meguri_db', DB_VER = 1;
+let db;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('habits')) {
+        const s = d.createObjectStore('habits', { keyPath: 'id', autoIncrement: true });
+        s.createIndex('name', 'name', { unique: false });
+      }
+      if (!d.objectStoreNames.contains('logs')) {
+        const s = d.createObjectStore('logs', { keyPath: 'id', autoIncrement: true });
+        s.createIndex('category', 'category', { unique: false });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror   = e => rej(e);
+  });
+}
+
+function dbGet(store, query) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const s  = tx.objectStore(store);
+    const req = query !== undefined ? s.get(query) : s.getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e);
+  });
+}
+
+function dbGetByIndex(store, idx, val) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).index(idx).getAll(val);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e);
+  });
+}
+
+function dbPut(store, data) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(data);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e);
+  });
+}
+
+function dbAdd(store, data) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).add(data);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e);
+  });
+}
+
+// ── State ───────────────────────────────────────────
+let currentHabit   = null;   // { id, name, duration, targetDays, maintenanceDays, isGraduated }
+let allHabits      = [];
+let currentLogs    = [];
+let sessionCount = 0;
+let targetTime     = null;
+let animId         = null;
+let isProcessing   = false;
+let viewingHabit   = null;   // gallery用
+
+// ── Init ────────────────────────────────────────────
+async function init() {
+  await openDB();
+  allHabits = await dbGet('habits');
+  recoverSession();
+  setupNameInput();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && currentState() === 's-active') updateTime();
+  });
+}
+
+function currentState() {
+  const on = document.querySelector('.screen.on');
+  return on ? on.id : null;
+}
+
+// ── Session recovery ────────────────────────────────
+function recoverSession() {
+  const raw = localStorage.getItem('meguri_session');
+  if (!raw) return;
+  try {
+    const s = JSON.parse(raw);
+    currentHabit = { name: s.name, duration: s.duration, targetDays: s.targetDays, maintenanceDays: s.maintenanceDays };
+    targetTime   = s.targetTime;
+    const now = Date.now();
+    if (s.state === 'active' && now < targetTime) {
+      showScreen('s-active');
+      startTick();
+      renderActiveDots();
+    } else if (s.state === 'active') {
+      showScreen('s-reflect');
+      setReflectCopy();
+    } else if (s.state === 'reflecting') {
+      showScreen('s-reflect');
+      setReflectCopy();
+    }
+  } catch(e) { localStorage.removeItem('meguri_session'); }
+}
+
+// ── Name input + suggestions ─────────────────────────
+function setupNameInput() {
+  const input = document.getElementById('nameInput');
+  const sug   = document.getElementById('suggestions');
+
+  input.addEventListener('focus', () => renderSuggestions());
+  input.addEventListener('input', () => renderSuggestions());
+  input.addEventListener('blur', () => setTimeout(() => sug.style.display = 'none', 180));
+
+  document.getElementById('nameField').addEventListener('click', e => e.stopPropagation());
+  document.body.addEventListener('click', () => sug.style.display = 'none');
+}
+
+function renderSuggestions() {
+  const val  = document.getElementById('nameInput').value.toLowerCase();
+  const sug  = document.getElementById('suggestions');
+  const list = allHabits.filter(h => !val || h.name.toLowerCase().includes(val));
+  if (!list.length) { sug.style.display = 'none'; return; }
+  sug.innerHTML = list.map(h => `
+    <div class="sug-item" onmousedown="selectHabit(${h.id})">
+      <span>${h.name}</span>
+      ${h.isGraduated ? '<span class="sug-graduated">🌕 卒業済み</span>' : ''}
+    </div>`).join('');
+  sug.style.display = 'block';
+}
+
+function selectHabit(id) {
+  const h = allHabits.find(x => x.id === id);
+  if (!h) return;
+  currentHabit = h;
+  document.getElementById('nameInput').value    = h.name;
+  document.getElementById('durationInput').value = h.duration;
+  document.getElementById('targetInput').value   = h.targetDays;
+  document.getElementById('maintInput').value    = h.maintenanceDays;
+  document.getElementById('suggestions').style.display = 'none';
+  startRitual();
+}
+
+// ── Start ────────────────────────────────────────────
+async function startRitual() {
+  const name     = document.getElementById('nameInput').value.trim();
+  const duration = parseInt(document.getElementById('durationInput').value) || 25;
+  const target   = parseInt(document.getElementById('targetInput').value)   || 66;
+  const maint    = parseInt(document.getElementById('maintInput').value)    || 7;
+  if (!name) return;
+
+  currentHabit = { name, duration, targetDays: target, maintenanceDays: maint };
+
+  // upsert habit
+  const existing = allHabits.find(h => h.name === name);
+  if (existing) {
+    existing.duration = duration; existing.targetDays = target; existing.maintenanceDays = maint;
+    await dbPut('habits', existing);
+    currentHabit.id = existing.id;
+  } else {
+    const id = await dbAdd('habits', { name, duration, targetDays: target, maintenanceDays: maint, isGraduated: false });
+    currentHabit.id = id;
+  }
+  allHabits = await dbGet('habits');
+
+  targetTime = Date.now() + duration * 60 * 1000;
+  localStorage.setItem('meguri_session', JSON.stringify({ ...currentHabit, targetTime, state: 'active' }));
+
+  await fetchProgress();
+  document.getElementById('activeName').textContent = name;
+  renderActiveDots();
+  showScreen('s-active');
+  startTick();
+}
+
+// ── Timer ────────────────────────────────────────────
+function startTick() {
+  cancelAnimationFrame(animId);
+  updateTime();
+  function loop() { updateTime(); if (currentState() === 's-active') animId = requestAnimationFrame(loop); }
+  animId = requestAnimationFrame(loop);
+}
+
+function updateTime() {
+  const left = Math.max(0, Math.floor((targetTime - Date.now()) / 1000));
+  const m = Math.floor(left / 60), s = left % 60;
+  document.getElementById('timerDisplay').innerHTML =
+    `<span>${m}:${String(s).padStart(2,'0')}</span><span class="timer-unit">min</span>`;
+
+
+
+  // orbit
+  const total    = (currentHabit?.duration || 1) * 60;
+  const progress = Math.min(1, (total - left) / total);
+  document.getElementById('orbitDot').style.offsetDistance = (progress * 100) + '%';
+
+  if (left <= 0 && currentState() === 's-active') finishTimer();
+}
+
+function finishTimer() {
+  cancelAnimationFrame(animId);
+  playSound();
+  localStorage.setItem('meguri_session', JSON.stringify({ ...currentHabit, targetTime, state: 'reflecting' }));
+  setReflectCopy();
+  showScreen('s-reflect');
+}
+
+// ── Abort ─────────────────────────────────────────────
+function abortRitual() {
+  cancelAnimationFrame(animId);
+  localStorage.removeItem('meguri_session');
+  currentHabit = null;
+  showScreen('s-select');
+}
+
+// ── Reflect / Finish ─────────────────────────────────
+function setReflectCopy() {
+  const atThreshold = sessionCount + 1 === (currentHabit?.targetDays || 66);
+  document.getElementById('reflectTitle').innerHTML =
+    atThreshold ? 'Threshold<br>Reached' : 'Reflect on<br>the Silence';
+  document.getElementById('reflectLabel').textContent =
+    atThreshold ? 'A Promise to Keep' : 'Memories of the Moment';
+  document.getElementById('reflectInput').placeholder =
+    atThreshold ? 'Goal reached. How will you maintain it?' : 'What did you feel?';
+}
+
+async function finishRitual() {
+  if (isProcessing) return; isProcessing = true;
+  const content = document.getElementById('reflectInput').value.trim()
+    || `${currentHabit.name}を全うした。`;
+  try {
+    await dbAdd('logs', {
+      category: currentHabit.name,
+      content,
+      created: new Date().toISOString()
+    });
+    document.getElementById('reflectInput').value = '';
+    await fetchProgress();
+    localStorage.removeItem('meguri_session');
+    renderObserved();
+    showScreen('s-observed');
+  } catch(e) { alert('Error: ' + e.message); }
+  finally { isProcessing = false; }
+}
+
+// ── Progress ──────────────────────────────────────────
+async function fetchProgress() {
+  if (!currentHabit?.name) return;
+  const logs = await dbGetByIndex('logs', 'category', currentHabit.name);
+  currentLogs = logs.sort((a,b) => new Date(b.created) - new Date(a.created));
+  const dates = [...new Set(currentLogs.map(l => l.created.split('T')[0]))];
+  sessionCount = dates.length;
+}
+
+// ── Observed screen ───────────────────────────────────
+function renderObserved() {
+  const total = (currentHabit.targetDays || 66) + (currentHabit.maintenanceDays || 7);
+  const done  = Math.min(sessionCount, currentHabit.targetDays);
+  const maint = sessionCount > currentHabit.targetDays
+    ? Math.min(sessionCount - currentHabit.targetDays, currentHabit.maintenanceDays) : 0;
+  const remaining = total - sessionCount;
+
+  document.getElementById('observedTitle').textContent = `${sessionCount} / ${total} sessions`;
+  renderDots('observedDots', total, done, maint);
+
+  if (sessionCount >= total) {
+    document.getElementById('observedText').textContent = 'すべての日々を全うした。';
+    document.getElementById('observedBtn').textContent  = 'Final Review';
+  } else {
+    document.getElementById('observedText').textContent = `${remaining} steps remaining.`;
+    document.getElementById('observedBtn').textContent  = 'Return';
+  }
+}
+
+function handleObservedBtn() {
+  const total = (currentHabit.targetDays || 66) + (currentHabit.maintenanceDays || 7);
+  if (sessionCount >= total) openAlbum();
+  else showScreen('s-select');
+}
+
+// ── Album ─────────────────────────────────────────────
+async function openAlbum(habitName) {
+  if (habitName) {
+    const h = allHabits.find(x => x.name === habitName);
+    viewingHabit = h || { name: habitName };
+    currentHabit = viewingHabit;
+    await fetchProgress();
+  }
+  document.getElementById('certTitle').textContent = `Chronicle of ${currentHabit.name}`;
+  document.getElementById('certLogs').innerHTML = currentLogs.map(l => `
+    <div class="cert-item">
+      <div class="cert-date">${formatDate(l.created)}</div>
+      <div class="cert-text">${escHtml(l.content)}</div>
+    </div>`).join('');
+  document.getElementById('finalReflect').value = '';
+  showScreen('s-album');
+}
+
+async function graduate() {
+  if (isProcessing) return; isProcessing = true;
+  const farewell = document.getElementById('finalReflect').value.trim() || '無言の卒業';
+  try {
+    await dbAdd('logs', {
+      category: currentHabit.name,
+      content: `卒業の言葉: ${farewell}`,
+      created: new Date().toISOString()
+    });
+    const h = allHabits.find(x => x.id === currentHabit.id);
+    if (h) { h.isGraduated = true; await dbPut('habits', h); }
+    allHabits = await dbGet('habits');
+    document.getElementById('lunarOverlay').classList.add('on');
+    setTimeout(() => {
+      showScreen('s-complete');
+      setTimeout(() => document.getElementById('lunarOverlay').classList.remove('on'), 5000);
+  if (document.documentElement.dataset.theme === 'light') setTimeout(spawnPetals, 200);
+    }, 1200);
+  } catch(e) { alert('Error: ' + e.message); }
+  finally { isProcessing = false; }
+}
+
+async function saveImage() {
+  const el = document.getElementById('certificate');
+  const canvas = await html2canvas(el, { backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--cert-bg').trim() || '#09090f' });
+  const a = document.createElement('a');
+  a.download = `Meguri_${currentHabit.name}.png`;
+  a.href = canvas.toDataURL(); a.click();
+}
+
+// ── Gallery ───────────────────────────────────────────
+async function renderGallery() {
+  allHabits = await dbGet('habits');
+  const graduated = allHabits.filter(h => h.isGraduated);
+  const grid = document.getElementById('galleryGrid');
+  if (!graduated.length) {
+    grid.innerHTML = '<p class="gallery-empty" style="grid-column:1/-1;">まだ卒業した習慣はありません。</p>';
+  } else {
+    grid.innerHTML = graduated.map(h => `
+      <div class="gallery-item" onclick="openAlbum('${escHtml(h.name)}')">
+        <div class="gallery-item-name">🌕 ${escHtml(h.name)}</div>
+        <div class="gallery-item-sub">Mastered the rhythm.</div>
+      </div>`).join('');
+  }
+}
+
+async function openGallery() {
+  await renderGallery();
+  showScreen('s-gallery');
+}
+
+// ── Dots ──────────────────────────────────────────────
+function renderDots(containerId, total, done, maint) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i < done ? ' done' : '') + (i >= done && i < done + maint ? ' maint' : '');
+    el.appendChild(d);
+  }
+}
+
+function renderActiveDots() {
+  if (!currentHabit) return;
+  const total = (currentHabit.targetDays || 66) + (currentHabit.maintenanceDays || 7);
+  const done  = Math.min(sessionCount, currentHabit.targetDays || 66);
+  renderDots('activeDots', total, done, 0);
+}
+
+// ── Screen switch ─────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('on');
+  document.getElementById('mainCard').scrollTop = 0;
+  if (id === 's-gallery') renderGallery();
+  if (id === 's-complete' && document.documentElement.dataset.theme === 'light') spawnPetals();
+}
+
+// ── Reset ─────────────────────────────────────────────
+function resetAll() {
+  cancelAnimationFrame(animId);
+  localStorage.removeItem('meguri_session');
+  currentHabit = null; sessionCount = 0; currentLogs = [];
+  document.getElementById('nameInput').value = '';
+  showScreen('s-select');
+}
+
+// ── Theme ─────────────────────────────────────────────
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isDark ? '○' : '☽';
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', isDark ? '#f5f2ec' : '#09090f');
+}
+
+// ── Sound ─────────────────────────────────────────────
+function playSound() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx  = new Ctx();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime + 2);
+  } catch(e) {}
+}
+
+// ── Utils ─────────────────────────────────────────────
+function formatDate(iso) { return iso.split('T')[0].replace(/-/g, '.'); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+
+// ── Presets ──────────────────────────────────────────
+const PRESETS = [
+  {
+    name: 'Journaling',
+    duration: 15,
+    targetDays: 66,
+    maintenanceDays: 14,
+    note: '15分 × 66回｜習慣化の科学的中央値（Lally et al., 2010）'
+  },
+  {
+    name: 'Meditation',
+    duration: 10,
+    targetDays: 60,
+    maintenanceDays: 14,
+    note: '10分 × 60回｜効果発現の目安（Oxford, 2014）'
+  },
+  {
+    name: 'Reading',
+    duration: 30,
+    targetDays: 66,
+    maintenanceDays: 14,
+    note: '30分 × 66回｜習慣化の科学的中央値'
+  },
+  {
+    name: 'Exercise',
+    duration: 30,
+    targetDays: 91,
+    maintenanceDays: 21,
+    note: '30分 × 91回｜運動習慣化の実験値（van Baak, 2003）'
+  },
+  {
+    name: 'Deep Work',
+    duration: 25,
+    targetDays: 66,
+    maintenanceDays: 14,
+    note: '25分 × 66回｜ポモドーロ法 × 科学的中央値'
+  },
+];
+
+function renderPresets() {
+  const sel = document.getElementById('presetSelect');
+  if (!sel) return;
+  PRESETS.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.name;
+    opt.textContent = p.name;
+    opt.title = p.note;
+    opt.style.background = 'var(--bg)';
+    sel.appendChild(opt);
+  });
+}
+
+function applyPresetFromSelect(sel) {
+  const name = sel.value;
+  const p = PRESETS.find(x => x.name === name);
+  if (!p) return;
+  document.getElementById('nameInput').value     = p.name;
+  document.getElementById('durationInput').value = p.duration;
+  document.getElementById('targetInput').value   = p.targetDays;
+  document.getElementById('maintInput').value    = p.maintenanceDays;
+  sel.selectedIndex = 0;
+}
+
+function applyPreset(name) {
+  const p = PRESETS.find(x => x.name === name);
+  if (!p) return;
+  document.getElementById('nameInput').value     = p.name;
+  document.getElementById('durationInput').value = p.duration;
+  document.getElementById('targetInput').value   = p.targetDays;
+  document.getElementById('maintInput').value    = p.maintenanceDays;
+}
+
+
+
+// ── Sakura petals spawner ──────────────────────────────
+function spawnPetals() {
+  const container = document.getElementById('sakuraContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  const count = 18;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    const size   = 8 + Math.random() * 10;
+    const left   = Math.random() * 100;
+    const delay  = Math.random() * 5;
+    const dur    = 5 + Math.random() * 5;
+    const drift  = (Math.random() - 0.5) * 120 + 'px';
+    const spin   = (Math.random() * 720 - 360) + 'deg';
+    p.style.cssText = `
+      left:${left}%; width:${size}px; height:${size}px;
+      animation-duration:${dur}s; animation-delay:${delay}s;
+      --drift:${drift}; --spin:${spin};
+    `;
+    container.appendChild(p);
+  }
+}
+
+
+function previewAlbum() {
+  const dummy = {
+    name: 'Journaling', duration: 15, targetDays: 66, maintenanceDays: 14, isGraduated: false
+  };
+  currentHabit = dummy;
+  const now = Date.now();
+  currentLogs = [
+    { created: new Date(now - 86400000*2).toISOString(), content: '今日は少しだけ書けた。それでいい。' },
+    { created: new Date(now - 86400000*5).toISOString(), content: '朝に書くと頭が整理される気がする。' },
+    { created: new Date(now - 86400000*9).toISOString(), content: '書き始めると止まらなくなった。不思議。' },
+    { created: new Date(now - 86400000*14).toISOString(), content: '最初の一行が一番難しい。' },
+  ];
+  document.getElementById('certTitle').textContent = `Chronicle of ${currentHabit.name}`;
+  document.getElementById('certLogs').innerHTML = currentLogs.map(l => `
+    <div class="cert-item">
+      <div class="cert-date">${formatDate(l.created)}</div>
+      <div class="cert-text">${escHtml(l.content)}</div>
+    </div>`).join('');
+  showScreen('s-album');
+}
+
+// ── Expose to global scope ────────────────────────────
+window.showScreen       = showScreen;
+window.startRitual      = startRitual;
+window.abortRitual      = abortRitual;
+window.finishRitual     = finishRitual;
+window.graduate         = graduate;
+window.resetAll         = resetAll;
+window.openAlbum        = openAlbum;
+window.previewAlbum     = previewAlbum;
+window.openGallery      = openGallery;
+window.saveImage        = saveImage;
+window.toggleTheme      = toggleTheme;
+window.selectHabit      = selectHabit;
+window.applyPresetFromSelect = applyPresetFromSelect;
+window.handleObservedBtn = handleObservedBtn;
+// ── Start ─────────────────────────────────────────────
+renderPresets();
+init();
+</script>
+</body>
+</html>
